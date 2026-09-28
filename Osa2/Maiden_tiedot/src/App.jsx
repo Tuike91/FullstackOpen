@@ -12,13 +12,14 @@ const Filter = ({ filter, handleFilterChange}) => {
   )
 }
 
-const Countries =({countries}) => {
+const Countries =({countries, selectedCountry, handleShow}) => {
   if (countries.length > 10) {
     return <p>Too many matches, spesify another filter</p>
   }
-  if (countries.length === 1) {
-    const country = countries[0]
-    console.log(country)
+  
+
+  if (selectedCountry) {
+  const country = selectedCountry
     return (
       <div>
         <h1>{country.name.common}</h1>
@@ -38,12 +39,37 @@ const Countries =({countries}) => {
       </div>
     )
   }
+  if (countries.length === 1) {
+    const country = countries[0]
+    console.log(country)
+
+    return (
+      <div>
+        <h1>{country.name.common}</h1>
+        <p>capital: {country.capital}</p>
+        <p>area: {country.area}</p>
+
+        <h2>languages</h2>
+        <ul>
+          {Object.values(country.languages).map(language =>
+            <li key={language}>{language}</li>
+          )}
+        </ul>
+        <img
+          src={country.flags.png}
+          alt={`Flag of ${country.name.common}`}
+        />
+      </div>
+    )
+  }
   return (
     <div>
-      {countries.map(country =>
-        <p key={country.name.common}> {country.name.common}</p>
-      )}
-    </div>
+        {countries.map(country =>
+          <p key={country.name.common}> {country.name.common}
+          <button onClick={() => handleShow(country)}>show</button>
+          </p>
+        )}
+      </div>
   )
 
 }
@@ -51,6 +77,7 @@ const Countries =({countries}) => {
 const App = () => {
   const [filter, setFilter] = useState('')
   const [countries, setCountries] = useState([])
+  const [selectedCountry, setSelectedCountry] = useState(null)
 
   useEffect(() => {
     axios
@@ -72,6 +99,10 @@ const App = () => {
   )
   console.log(countriesToShow)
 
+  const handleShow = (country) => {
+  setSelectedCountry(country)
+}
+
 
   return (
     <div>
@@ -80,7 +111,11 @@ const App = () => {
           handleFilterChange={handleFilterChange}
       />
 
-      <Countries countries= {countriesToShow} />
+      <Countries
+        countries={countriesToShow}
+        selectedCountry={selectedCountry}
+        handleShow={handleShow}
+      />
     </div>
 
   )

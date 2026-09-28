@@ -16,6 +16,28 @@ const Countries =({countries}) => {
   if (countries.length > 10) {
     return <p>Too many matches, spesify another filter</p>
   }
+  if (countries.length === 1) {
+    const country = countries[0]
+    console.log(country)
+    return (
+      <div>
+        <h1>{country.name.common}</h1>
+        <p>capital: {country.capital}</p>
+        <p>area: {country.area}</p>
+        <h2>languages</h2>
+          <ul>
+            {Object.values(country.languages).map(language =>
+              <li key={language}>{language}</li>
+            )}
+          </ul>
+
+          <img
+            src={country.flags.png}
+            alt={`Flag og ${country.name.common}`}
+          />
+      </div>
+    )
+  }
   return (
     <div>
       {countries.map(country =>

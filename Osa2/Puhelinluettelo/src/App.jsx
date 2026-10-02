@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import Notification from './components/Notification'
+const baseUrl = 'http://localhost:3001/api/persons'
 
 const Filter = ( { filter, handleFilterChange}) => {
   return (
@@ -53,7 +54,7 @@ const Persons = ({persons, removePerson}) => {
   return (
     <div>
         {persons.map(person => 
-        <p key={person.name}>{person.name} {person.phone} 
+        <p key={person.name}>{person.name} {person.number} 
         <button onClick={() => removePerson(person.name)}>remove</button></p>
         )}
 
@@ -76,14 +77,14 @@ const App = () => {
   useEffect(() => {
     // GET-pyyntö hakee henkilöt json-serveriltä.
     axios
-      .get('http://localhost:3001/persons')
+      .get(baseUrl)
       .then(response => {
         // Palvelimen vastaus muutetaan sovelluksen käyttämään muotoon.
         // number-kenttä nimetään sovelluksessa phone-kentäksi.
         const personsFromServer = response.data.map(person => ({
           id: person.id,
           name: person.name,
-          phone: person.number ?? person.phone
+          number: person.number
         }))
         // Haetut henkilöt tallennetaan Reactin tilaan.
         setPersons(personsFromServer)
@@ -112,7 +113,7 @@ const App = () => {
     const personObject = {
       id: persons.length + 1,
       name: newName,
-      phone: newNumber
+      number: newNumber
     }
   
     const person = persons.find(person => person.name === newName)
@@ -125,7 +126,7 @@ const App = () => {
       }
 
       axios
-        .put (`http://localhost:3001/persons/${person.id}`, {
+        .put (`${baseUrl}/${person.id}`, {
           id: person.id,
           name: person.name,
           number: newNumber
@@ -133,7 +134,7 @@ const App = () => {
         
         .then (() => {
           setPersons(persons.map(currentPerson => {
-            return currentPerson.id !== person.id ? currentPerson : { ...currentPerson, phone: newNumber }
+            return currentPerson.id !== person.id ? currentPerson : { ...currentPerson, number: newNumber }
           }))
           setNewName('')
           setNewNumber('')
@@ -148,10 +149,10 @@ const App = () => {
     }
     
     axios
-      .post('http://localhost:3001/persons', {
+      .post(baseUrl, {
         id: personObject.id,
         name: personObject.name,
-        number: personObject.phone
+        number: personObject.number
       })
 
       .then (response => {
@@ -190,7 +191,7 @@ const App = () => {
       if (window.confirm(`Remove ${name}?`)) {
         // DELETE-pyyntö poistaa henkilön palvelimelta tämän id:n avulla.
         axios
-          .delete (`http://localhost:3001/persons/${person.id}`)
+          .delete (`${baseUrl}/${person.id}`)
           .then (() => {
             // Poistetaan henkilö myös Reactin tilasta.
             // filter palauttaa uuden listan ilman poistettua henkilöä.

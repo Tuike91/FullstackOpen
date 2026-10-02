@@ -1,7 +1,12 @@
 const express = require('express')
+const morgan =require('morgan')
 const app = express()
+const cors = require('cors')
+
+app.use(cors())
 
 app.use(express.json())
+app.use(morgan('tiny'))
 
 let persons = [
     {
@@ -51,6 +56,29 @@ app.delete('/api/persons/:id', (request, response) => {
     response.status(200).json({message: 'Person deleted.'})
 })
 
+app.put('/api/persons/:id', (request, response) => {
+  const id = request.params.id
+  const body = request.body
+
+  const person = persons.find(person => person.id === id)
+
+  if (!person) {
+    return response.status(404).end()
+  }
+
+  const updatedPerson = {
+    ...person,
+    name: body.name,
+    number: body.number
+  }
+
+  persons = persons.map(person =>
+    person.id !== id ? person : updatedPerson
+  )
+
+  response.json(updatedPerson)
+})
+
 const generateId = () => {
   const maxId = persons.length > 0
     ? Math.max(...persons.map(n => Number(n.id)))
@@ -76,6 +104,7 @@ app.post('/api/persons', (request, response) => {
     }
 
     persons = persons.concat(person)
+    response.json(person)
 })
 
 
